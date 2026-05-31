@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: biwenger-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      - key: DB_PATH
+        value: /data/biwenger.db
+    disk:
+      name: biwenger-db
+      mountPath: /data
+      sizeGB: 1
+
+  - type: web
+    name: biwenger-frontend
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://biwenger-backend.onrender.com

@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.db
+*.sqlite
+venv/
+node_modules/
+.env
+backend/.env
+scripts/
+
+# Build artefacts y caches comunes (extra)
+frontend/build/
+.DS_Store
+*.log
+.vscode/
+.idea/
