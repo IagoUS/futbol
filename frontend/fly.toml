@@ -1,0 +1,32 @@
+# Fly.io config — frontend (React build servido por nginx)
+# Deploy: cd frontend && fly deploy
+#
+# REACT_APP_API_URL se inyecta como build-arg porque Create React App
+# congela las env vars en build time (no runtime).
+
+app = "biwenger-frontend"
+primary_region = "mad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+  [build.args]
+    REACT_APP_API_URL = "https://biwenger-backend.fly.dev"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "5s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

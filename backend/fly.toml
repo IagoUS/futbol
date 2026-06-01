@@ -1,0 +1,46 @@
+# Fly.io config — backend (FastAPI + Playwright + SQLite)
+# Deploy: cd backend && fly deploy
+
+app = "biwenger-backend"
+primary_region = "mad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  # La BD vive en el volumen montado en /data (ver [[mounts]])
+  DB_PATH = "/data/biwenger.db"
+  # Origen permitido por CORS además de los hardcoded de main.py
+  CORS_ORIGIN = "https://biwenger-frontend.fly.dev"
+  # Puerto interno donde escucha uvicorn (main.py lee PORT)
+  PORT = "8000"
+
+# Volumen persistente para la base de datos SQLite.
+# Crear UNA VEZ con:  fly volumes create biwenger_data --region mad --size 1
+[[mounts]]
+  source = "biwenger_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  # auto_stop_machines + auto_start_machines = la máquina se suspende cuando
+  # no hay tráfico y se reactiva con la primera request. Para evitar arranques
+  # en frío usamos un ping externo a /health cada ~5 min.
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/health"
+
+# Recursos: FastAPI + httpx + sqlite + bs4 son ligeros. 512 MB entra en
+# el free tier de Fly (3 máquinas shared-cpu-1x 256 MB gratis → 1×512 cuenta
+# como 2 unidades, sigue dentro del cupo gratuito mientras no se levanten más).
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

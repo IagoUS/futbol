@@ -81,6 +81,16 @@ def _rows_to_list(rows) -> list:
 
 
 # ──────────────────────────────────────────────
+# GET /health — liveness probe + keep-alive
+# Usado por Fly.io para health checks y por el job de keep-alive externo
+# para evitar que la máquina se suspenda por inactividad.
+# ──────────────────────────────────────────────
+@app.get("/health")
+async def health():
+    return {"ok": True}
+
+
+# ──────────────────────────────────────────────
 # POST /auth/login
 # ──────────────────────────────────────────────
 @app.post("/auth/login")
