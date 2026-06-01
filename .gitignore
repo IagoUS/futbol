@@ -14,3 +14,11 @@ frontend/build/
 *.log
 .vscode/
 .idea/
+
+# Claves privadas y secretos (NUNCA commitear)
+*.key
+*.pem
+id_rsa
+id_ed25519
+*.p12
+*.pfx

@@ -13,6 +13,8 @@ RUN npm run build
 
 FROM nginx:alpine
 COPY --from=build /app/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf.template /etc/nginx/templates/nginx.conf.template
 EXPOSE 8080
-CMD ["nginx", "-g", "daemon off;"]
+# Railway inyecta PORT en runtime; Fly pasa PORT vía [env] en fly.toml.
+# Si no hay PORT (build local), usamos 8080.
+CMD ["/bin/sh", "-c", "export PORT=${PORT:-8080} && envsubst '${PORT}' < /etc/nginx/templates/nginx.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
